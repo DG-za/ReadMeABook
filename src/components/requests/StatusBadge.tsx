@@ -7,14 +7,17 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils/cn';
+import { getRequestDisplayStatus } from '@/lib/utils/request-status-display';
 
 interface StatusBadgeProps {
   status: string;
   progress?: number;
+  lastSearchAt?: string | Date | null;
+  errorMessage?: string | null;
   className?: string;
 }
 
-export function StatusBadge({ status, progress, className }: StatusBadgeProps) {
+export function StatusBadge({ status, progress, lastSearchAt, errorMessage, className }: StatusBadgeProps) {
   const statusConfig: Record<string, { label: string; color: string }> = {
     pending: {
       label: 'Pending',
@@ -23,6 +26,10 @@ export function StatusBadge({ status, progress, className }: StatusBadgeProps) {
     awaiting_search: {
       label: 'Awaiting Search',
       color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    },
+    no_suitable_match: {
+      label: 'No Suitable Match',
+      color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
     },
     searching: {
       label: 'Searching...',
@@ -78,7 +85,8 @@ export function StatusBadge({ status, progress, className }: StatusBadgeProps) {
     },
   };
 
-  const config = statusConfig[status] || {
+  const displayStatus = getRequestDisplayStatus({ status, lastSearchAt, errorMessage });
+  const config = statusConfig[displayStatus] || {
     label: status,
     color: 'bg-gray-100 text-gray-800',
   };

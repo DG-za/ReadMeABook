@@ -103,6 +103,20 @@ describe('RequestCard', () => {
     expect(await screen.findByText('Failure details')).toBeInTheDocument();
   });
 
+  it.each([
+    [null, 'Awaiting Search'],
+    ['2026-11-01T12:00:00Z', 'No Suitable Match'],
+  ])('shows the search-state chip without a subtitle for lastSearchAt=%s', async (lastSearchAt, label) => {
+    const { RequestCard } = await import('@/components/requests/RequestCard');
+    const errorMessage = 'No quality matches found. Will retry automatically.';
+
+    render(<RequestCard request={{ ...baseRequest, status: 'awaiting_search', lastSearchAt, errorMessage }} />);
+
+    expect(screen.getByText(label)).toBeInTheDocument();
+    expect(screen.queryByText(errorMessage)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Show error' })).toBeNull();
+  });
+
   it('triggers cancel action', async () => {
     const { RequestCard } = await import('@/components/requests/RequestCard');
 

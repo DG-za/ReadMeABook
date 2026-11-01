@@ -185,6 +185,26 @@ describe('RecentRequestsTable', () => {
     expect(statusBadge).toHaveTextContent('Pending');
   });
 
+  it.each([
+    [null, 'Awaiting Search'],
+    ['2026-11-01T12:00:00Z', 'No Suitable Match'],
+  ])('shows the search-state chip without a subtitle for lastSearchAt=%s', (lastSearchAt, label) => {
+    const errorMessage = 'No quality matches found. Will retry automatically.';
+    useSWRMock.mockImplementation((url: string) => ({
+      data: url.includes('/api/admin/requests')
+        ? { ...mockRequestsData, requests: [{ ...mockRequestsData.requests[0], status: 'awaiting_search', lastSearchAt, errorMessage }] }
+        : mockUsersData,
+      error: null,
+      isLoading: false,
+    }));
+
+    render(<RecentRequestsTable />);
+
+    expect(screen.getByRole('cell', { name: label })).toBeInTheDocument();
+    expect(screen.queryByText(errorMessage)).toBeNull();
+    expect(screen.getByRole('option', { name: 'Awaiting Search / No Suitable Match' })).toHaveValue('awaiting_search');
+  });
+
   it('renders filter controls', () => {
     render(<RecentRequestsTable />);
 

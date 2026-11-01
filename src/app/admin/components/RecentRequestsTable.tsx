@@ -15,6 +15,7 @@ import { authenticatedFetcher, fetchWithAuth } from '@/lib/utils/api';
 import { useToast } from '@/components/ui/Toast';
 import { AudiobookDetailsModal } from '@/components/audiobooks/AudiobookDetailsModal';
 import { BlockedReleasesChip } from './BlockedReleasesChip';
+import { getRequestDisplayStatus } from '@/lib/utils/request-status-display';
 
 interface RecentRequest {
   requestId: string;
@@ -28,6 +29,7 @@ interface RecentRequest {
   createdAt: Date;
   completedAt: Date | null;
   errorMessage: string | null;
+  lastSearchAt?: string | null;
   torrentUrl?: string | null;
   downloadAttempts?: number;
   customSearchTerms?: string | null;
@@ -56,7 +58,7 @@ const STATUS_OPTIONS = [
   { value: 'all', label: 'All Statuses' },
   { value: 'pending', label: 'Pending' },
   { value: 'awaiting_approval', label: 'Awaiting Approval' },
-  { value: 'awaiting_search', label: 'Awaiting Search' },
+  { value: 'awaiting_search', label: 'Awaiting Search / No Suitable Match' },
   { value: 'awaiting_release', label: 'Awaiting Release' },
   { value: 'searching', label: 'Searching' },
   { value: 'downloading', label: 'Downloading' },
@@ -76,11 +78,13 @@ const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 type SortField = 'createdAt' | 'completedAt' | 'title' | 'user' | 'status';
 type SortOrder = 'asc' | 'desc';
 
-function getStatusBadge(status: string) {
+function getStatusBadge(request: RecentRequest) {
+  const status = getRequestDisplayStatus(request);
   const styles: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     awaiting_approval: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
     awaiting_search: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    no_suitable_match: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
     awaiting_release: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
     searching: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     downloading: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
@@ -99,6 +103,7 @@ function getStatusBadge(status: string) {
 
   const labels: Record<string, string> = {
     awaiting_search: 'Awaiting Search',
+    no_suitable_match: 'No Suitable Match',
     awaiting_release: 'Awaiting Release',
     awaiting_import: 'Awaiting Import',
     awaiting_approval: 'Awaiting Approval',
@@ -720,7 +725,7 @@ export function RecentRequestsTable({ ebookSidecarEnabled = false, annasArchiveB
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                       {request.user}
                     </td>
-                    <td className="px-6 py-4">{getStatusBadge(request.status)}</td>
+                    <td className="px-6 py-4">{getStatusBadge(request)}</td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
                     </td>

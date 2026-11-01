@@ -137,6 +137,7 @@ export async function GET(request: NextRequest) {
           author: request.audiobook.author,
           asin: request.audiobook.audibleAsin || null,
           status: request.status,
+          lastSearchAt: request.lastSearchAt,
           type: request.type || 'audiobook', // Include request type for UI display
           userId: request.user.id,
           user: request.user.plexUsername,

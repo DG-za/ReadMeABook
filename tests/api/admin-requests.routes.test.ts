@@ -76,12 +76,13 @@ describe('Admin requests routes', () => {
     expect(payload.requests[0].torrentUrl).toBe('http://torrent');
   });
 
-  it('returns paginated requests with default params', async () => {
+  it.each([null, new Date('2026-11-01T12:00:00Z')])('preserves lastSearchAt=%s in paginated requests', async (lastSearchAt) => {
     prismaMock.request.count.mockResolvedValueOnce(1);
     prismaMock.request.findMany.mockResolvedValueOnce([
       {
         id: 'req-1',
         status: 'pending',
+        lastSearchAt,
         createdAt: new Date(),
         completedAt: null,
         errorMessage: null,
@@ -105,6 +106,7 @@ describe('Admin requests routes', () => {
     expect(payload.pageSize).toBe(25);
     expect(payload.totalPages).toBe(1);
     expect(payload.requests[0].userId).toBe('u-1');
+    expect(payload.requests[0].lastSearchAt).toBe(lastSearchAt?.toISOString() ?? null);
   });
 
   it('filters requests by status', async () => {

@@ -25,6 +25,7 @@ interface RequestCardProps {
     status: string;
     progress: number;
     errorMessage?: string;
+    lastSearchAt?: string | Date | null;
     createdAt: string;
     updatedAt: string;
     completedAt?: string;
@@ -164,7 +165,12 @@ export function RequestCard({ request, showActions = true }: RequestCardProps) {
 
           {/* Status Badge and Type Badge */}
           <div className="flex items-center gap-2 flex-wrap">
-            <StatusBadge status={request.status} progress={request.progress} />
+            <StatusBadge
+              status={request.status}
+              progress={request.progress}
+              lastSearchAt={request.lastSearchAt}
+              errorMessage={request.errorMessage}
+            />
             {releaseDateLabel && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 Releases {releaseDateLabel}

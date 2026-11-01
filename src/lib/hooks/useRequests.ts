@@ -17,6 +17,7 @@ export interface Request {
   status: string;
   progress: number;
   errorMessage?: string;
+  lastSearchAt?: string | null;
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
