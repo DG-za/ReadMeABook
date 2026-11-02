@@ -112,8 +112,8 @@ export async function findAudiobookFolderForEbook(book: Book): Promise<Audiobook
       candidatePath = item?.filePath ?? null;
     }
     const folder = candidatePath ? await audioFolder(candidatePath, book.fileFormat) : null;
-    if (!folder && !liveAudio && candidate.duration === 0n && !ids.includes(candidate.plexGuid) && candidatePath) {
-      const names = await fs.readdir(candidatePath).catch(() => []);
+    if (!folder && !liveAudio && candidate.duration === BigInt(0) && !ids.includes(candidate.plexGuid) && candidatePath) {
+      const names = await fs.readdir(/* turbopackIgnore: true */ candidatePath).catch(() => []);
       if (names.some((name) => (EBOOK_EXTENSIONS as readonly string[]).includes(path.extname(name).toLowerCase()))) continue;
     }
     if (!folder) {
