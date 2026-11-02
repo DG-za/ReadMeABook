@@ -43,6 +43,23 @@ describe('organizer: ebook source name keeps its extension (#474)', () => {
     fs.rmSync(root, { recursive: true, force: true });
   });
 
+  it('places an ebook beside existing audio even when the template now produces another folder', async () => {
+    const original = path.join(root, 'legacy-library', 'Author', 'Old title ASIN');
+    fs.mkdirSync(original, { recursive: true });
+    fs.writeFileSync(path.join(original, 'Book.m4b'), 'audio-bytes');
+    const source = path.join(root, 'Book.epub');
+    fs.writeFileSync(source, 'ebook-bytes');
+    const media = path.join(root, 'new-imports');
+    const organizer = new FileOrganizer(media, path.join(root, 'tmp'));
+    const result = await organizer.organizeEbook(source, { title: 'New title', author: 'Author' },
+      '{author}/{title}', undefined, true, undefined, { targetDirectory: original });
+    expect(result.success).toBe(true);
+    expect(result.targetPath).toBe(original);
+    expect(fs.readFileSync(path.join(original, 'Book.epub'), 'utf8')).toBe('ebook-bytes');
+    expect(fs.readFileSync(path.join(original, 'Book.m4b'), 'utf8')).toBe('audio-bytes');
+    expect(fs.existsSync(media)).toBe(false);
+  });
+
   it('a 221-character Latin name is cut to 200 characters and keeps .epub', async () => {
     const source = `${'T'.repeat(184)} - Firstname Middlename Lastname.epub`; // 221 characters
     expect(source).toHaveLength(221);

@@ -178,6 +178,12 @@ describe('AudiobookshelfLibraryService', () => {
     expect(result).toBeNull();
   });
 
+  it('retains the audiobook folder from a single-item response for ebook attachment', async () => {
+    apiMock.getABSItem.mockResolvedValue({ ...makeAudiobookItem(), path: '/audiobooks/Humanities/Author/Book' });
+    const service = new AudiobookshelfLibraryService();
+    expect(await service.getItem('item-1')).toMatchObject({ filePath: '/audiobooks/Humanities/Author/Book' });
+  });
+
   it('searches items and maps results', async () => {
     apiMock.searchABSItems.mockResolvedValue([
       {

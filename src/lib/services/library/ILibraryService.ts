@@ -25,6 +25,7 @@ export interface LibraryItem {
   narrator?: string;
   description?: string;
   coverUrl?: string;
+  filePath?: string;
   duration?: number;       // seconds
   asin?: string;
   isbn?: string;

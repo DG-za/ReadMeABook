@@ -48,6 +48,14 @@ Ebooks are first-class citizens in RMAB, with their own request type, tracking, 
 7. Request marked as `downloaded` (terminal)
 8. Torrent left to seed (respects seeding limits)
 
+### Existing audiobook folders
+- Ebook imports reuse the book's recorded folder when it contains audio.
+- For existing Audiobookshelf library books, the importer uses an exact library item ID or an unambiguous ASIN match. Older cache rows without paths resolve through the live item API.
+- The library path must be mounted at the same path inside ReadMeABook. An unavailable matched audiobook folder stops the import instead of creating a separate ebook item.
+- Shared folders and ambiguous ASIN matches stop the import. Standalone ebooks use the ebook path template.
+- Attached ebooks keep the shared book record's audio path and format. Folder template or metadata changes do not move the ebook away from its audiobook.
+- ReadMeABook's deletion guard retains files attached outside `media_dir`. Remove those files through Audiobookshelf or the filesystem when needed.
+
 ### Configuration
 
 **Admin Settings → E-book Sidecar tab** (3 sections)

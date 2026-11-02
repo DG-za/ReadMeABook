@@ -93,6 +93,21 @@ describe('ebook manual import organize', () => {
     fs.rmSync(root, { recursive: true, force: true });
   });
 
+  it('attaches to the recorded audiobook folder and retains its audio format', async () => {
+    mkfile('Book.epub', 'ebook-bytes');
+    fs.writeFileSync(path.join(target, 'Book.m4b'), 'audio-bytes');
+    prismaMock.audiobook.findMany.mockResolvedValue([]);
+    prismaMock.audiobook.findUnique.mockResolvedValue({
+      id: 'ab-1', title: 'Book', author: 'Author', filePath: target,
+      fileFormat: 'm4b', narrator: 'N', series: 'S', seriesPart: '1', year: 2020,
+    });
+    expect((await runOrganize({})).success).toBe(true);
+    expect(organizerMock.organizeEbook.mock.calls[0][6]).toMatchObject({ targetDirectory: target });
+    expect(prismaMock.audiobook.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ filePath: target, fileFormat: 'm4b' }),
+    }));
+  });
+
   it('imports the selected ebook file, not the folder\'s preferred one, and cleanup removes only it', async () => {
     const epub = mkfile('Other Edition.epub', 'epub-other');
     const pdf = mkfile('Book.pdf', 'pdf-bytes');

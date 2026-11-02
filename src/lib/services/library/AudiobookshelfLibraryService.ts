@@ -172,6 +172,7 @@ export class AudiobookshelfLibraryService implements ILibraryService {
       narrator: metadata.narratorName,
       description: metadata.description,
       coverUrl: item.media.coverPath ? `/api/items/${item.id}/cover` : undefined,
+      filePath: item.path,
       duration: item.media.duration,
       asin: metadata.asin,
       isbn: metadata.isbn,

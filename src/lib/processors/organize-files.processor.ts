@@ -32,6 +32,7 @@ import { createAudibleDetailsLoader, readMetadataTaggingEnabled, resolveTagDetai
 import { applyPostImportCategory } from './post-import-category';
 import { preferredEbookFile } from '../utils/import-inventory';
 import { findEbookOnDisk } from '../utils/ebook-on-disk';
+import { findAudiobookFolderForEbook } from '../utils/ebook-audiobook-folder';
 
 /**
  * Process organize files job
@@ -708,6 +709,8 @@ async function processEbookOrganization(
   }
 
   logger.info(`Organizing ebook: ${book.title} by ${book.author}`);
+  const audiobookFolder = await findAudiobookFolderForEbook(book);
+  if (audiobookFolder) logger.info(`Attaching ebook to existing audiobook folder: ${audiobookFolder.path}`);
 
   // Fetch missing metadata from AudibleCache (same pattern as audiobooks)
   // Year, narrator, series, seriesPart can all be part of path templates
@@ -912,7 +915,10 @@ async function processEbookOrganization(
     jobId ? { jobId, context: 'FileOrganizer.Ebook' } : undefined,
     isIndexerDownload,
     ebookRenameConfig,
-    { compareExisting: deleteMayFollowFor(cleanupKind, cleanupSource) }
+    {
+      compareExisting: deleteMayFollowFor(cleanupKind, cleanupSource),
+      ...(audiobookFolder ? { targetDirectory: audiobookFolder.path } : {}),
+    }
   );
 
   // Clean up fixed EPUB temp file after organization (regardless of success)
@@ -938,7 +944,7 @@ async function processEbookOrganization(
     where: { id: audiobookId },
     data: {
       filePath: result.targetPath,
-      fileFormat: result.format || 'epub',
+      fileFormat: audiobookFolder?.format || result.format || 'epub',
       status: 'completed',
       completedAt: new Date(),
       updatedAt: new Date(),
