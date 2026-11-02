@@ -879,7 +879,7 @@ export class FileOrganizer {
     loggerConfig?: LoggerConfig,
     isIndexerDownload: boolean = false,
     renameConfig?: { enabled: boolean; template: string },
-    placement?: PlacementOptions
+    placement?: PlacementOptions & { targetDirectory?: string }
   ): Promise<EbookOrganizationResult> {
     const logger = loggerConfig ? RMABLogger.forJob(loggerConfig.jobId, loggerConfig.context) : null;
 
@@ -917,7 +917,7 @@ export class FileOrganizer {
       await logger?.info(`Detected ebook format: ${ext}`);
 
       // Build target directory using same template as audiobooks
-      const targetDir = this.buildTargetPath(
+      const targetDir = placement?.targetDirectory ?? this.buildTargetPath(
         this.mediaDir,
         template,
         metadata.author,
